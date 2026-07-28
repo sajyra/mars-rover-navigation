@@ -15,14 +15,7 @@ class PolicyNetwork(nn.Module):
         x = state
         x = self.mlp(x)
         return x
-    
-    def act(self, state):
-        logits = self.forward(state)
-        probabilities = torch.distributions.Categorical(logits=logits)
-        action = probabilities.sample()
-        log_prob = probabilities.log_prob(action)
-        return action, log_prob
-
+        
 
 class ValueNetwork(nn.Module):
     
@@ -39,3 +32,9 @@ class ValueNetwork(nn.Module):
         x = self.mlp(x)
         return x
 
+
+def act(self, logits):
+        probabilities = torch.distributions.Categorical(logits=logits)
+        action = probabilities.sample()
+        log_prob = probabilities.log_prob(action)
+        return action, log_prob
