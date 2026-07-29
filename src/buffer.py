@@ -19,7 +19,7 @@ class RolloutBuffer():
         self.dones.append(done)
     
     def get(self):
-        return (torch.tensor(self.states), torch.stack(self.actions), 
+        return (torch.stack(self.states), torch.stack(self.actions), 
             torch.stack(self.log_probs), torch.tensor(self.rewards), torch.stack(self.values), 
             torch.tensor(self.dones))
 

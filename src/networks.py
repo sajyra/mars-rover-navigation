@@ -33,7 +33,7 @@ class ValueNetwork(nn.Module):
         return x
 
 
-def act(self, logits):
+def act(logits):
         probabilities = torch.distributions.Categorical(logits=logits)
         action = probabilities.sample()
         log_prob = probabilities.log_prob(action)
