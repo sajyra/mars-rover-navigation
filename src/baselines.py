@@ -2,7 +2,7 @@ from environment import MarsRoverEnv
 import heapq
 import environment
 
-def random(env, episodes=100):
+def random_policy(env, episodes=100):
 
     all_steps = []
     all_rewards = []
@@ -114,12 +114,18 @@ def a_star(grid, start, goal):
 
 
 if __name__ == "__main__":
-    env = MarsRoverEnv()
+    env = MarsRoverEnv(8, 5, max_steps=150, randomize=True)
+    path_lengths = []
+    for _ in range(100):
+        env.reset()
+        path1 = a_star(env.grid, env.rover_pos, env.sample_pos)
+        path2 = a_star(env.grid, env.sample_pos, env.lander_pos)
+        if path1 and path2:
+            path_lengths.append(len(path1) + len(path2) - 2)
+
+    avg_optimal = sum(path_lengths) / len(path_lengths)
+    print(f"\n--- A* Baseline (100 episodes) ---")
+    print(f"Average optimal path length: {avg_optimal:.1f}")
+
     env.reset()
-
-    path1 = a_star(env.grid, env.rover_pos, env.sample_pos)
-    path2 = a_star(env.grid, env.sample_pos, env.lander_pos)
-
-    print(f"Leg 1 (start -> sample): {len(path1) - 1} steps")
-    print(f"Leg 2 (sample -> lander): {len(path2) - 1} steps")
-    print(f"Total optimal path: {len(path1) + len(path2) - 2} steps")
+    random_policy(env, 100)

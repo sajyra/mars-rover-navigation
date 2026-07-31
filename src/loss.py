@@ -1,12 +1,28 @@
 import torch
 import torch.nn.functional as F
 
-def compute_ppo_loss(policy_net, value_net, states, actions, old_log_probs, advantages, returns, clip_eps=0.2, value_coef=0.5, entropy_coef=0.01):
+def compute_ppo_loss(policy_net, value_net, states, actions, dones, old_log_probs, advantages, returns, hidden, clip_eps=0.2, value_coef=0.5, entropy_coef=0.01):
 
-    advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
-    logits = policy_net(states)
+    
+    hidden, cell = hidden[0], hidden[1]
+
+    logits_list = []
+
+    for t in range(len(states)):
+        
+        logits, (hidden, cell) = policy_net(states[t], (hidden, cell))
+
+        logits_list.append(logits)
+
+        if dones[t]:
+            hidden, cell = torch.zeros_like(hidden), torch.zeros_like(cell)
+
+
+    logits = torch.stack(logits_list)
     probabilities = torch.distributions.Categorical(logits=logits)
     new_log_probs = probabilities.log_prob(actions)
+
+
     ratios = torch.exp(new_log_probs - old_log_probs)
 
     surr1 = ratios * advantages
@@ -18,4 +34,4 @@ def compute_ppo_loss(policy_net, value_net, states, actions, old_log_probs, adva
     entropy = probabilities.entropy().mean()
 
     loss = policy_loss + (value_coef * value_loss) - (entropy_coef * entropy)
-    return loss
+    return loss, (hidden, cell)
