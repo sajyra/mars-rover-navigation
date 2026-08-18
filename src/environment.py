@@ -9,7 +9,7 @@ OUTSIDE = 3
 
 class MarsRoverEnv(gymnasium.Env):
 
-    def __init__(self, grid_size=20, window_size=5, num_bins=None, max_steps=200, randomize=True):
+    def __init__(self, grid_size=8, window_size=5, num_bins=None, max_steps=150, randomize=True):
         super().__init__()
 
         self.grid_size = grid_size
@@ -147,15 +147,14 @@ class MarsRoverEnv(gymnasium.Env):
         grid = np.zeros((self.grid_size, self.grid_size), dtype=np.int32)
 
         if not self.randomize:
-            # no obstacles in static debug mode — isolating pure navigation
+            # no obstacles in static debug mode, isolating pure navigation
             for col in range(20):
                 if col not in (9, 10):
                     grid[9, col] = CRATER
             grid[8, 9] = CRATER
             grid[8, 10] = CRATER
 
-            # Wall 2 — blocks the return leg (sample → lander), spans column 15
-            # entirely except a 2-cell gap at rows 9-10, same flanking cliffs.
+         
             for row in range(20):
                 if row not in (9, 10):
                     grid[row, 15] = CRATER
@@ -165,7 +164,7 @@ class MarsRoverEnv(gymnasium.Env):
             return grid
 
         num_craters = self.grid_size // 2
-        num_cliffs = self.grid_size // 3
+        num_cliffs = self.grid_size // 2
 
         forbidden = {
             self.rover_pos,
